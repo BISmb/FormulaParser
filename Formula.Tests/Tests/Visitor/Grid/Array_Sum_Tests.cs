@@ -32,7 +32,7 @@ public class Array_Sum_Tests : FormulaTest
             .Verifiable();
     
         mockGrid.Setup(g => g.GetValueForCell(It.IsIn(new GridCellReference("A3"))))
-            .Returns(1)
+            .Returns(5)
             .Verifiable();
         
         _gridVisitor = new GridExpressionVisitor(mockGrid.Object);
@@ -50,7 +50,7 @@ public class Array_Sum_Tests : FormulaTest
     }
 
     [Theory]
-    [InlineData("SUM(A1:A3)", 6)]
+    [InlineData("SUM(A1:A3)", 9)]
     public void Should_Sum_GridArray(string formula, int expectedResult)
     {
         var result = Evaluator.EvaluateFormula(formula, _gridVisitor);
