@@ -1,4 +1,6 @@
 ﻿<Solution>
+  <Project Path="DataLib.Tests\DataLib.Tests.csproj" Type="Classic C#" />
+  <Project Path="DataLib\DataLib.csproj" Type="Classic C#" />
   <Project Path="Formula.Tests\Formula.Tests.csproj" Type="Classic C#" />
   <Project Path="Formula\Formula.csproj" Type="Classic C#" />
 </Solution>
