@@ -43,7 +43,7 @@ public class GridExpressionVisitor(IGrid grid) : ExpressionVisitor
         //     // check to see if sum.Type is same as sumExpression.Type
         //     Debugger.Break();
         // }
-        
-        return base.Visit(node);
+        var reducedNode = base.Visit(node);
+        return reducedNode;
     }
 }

@@ -133,7 +133,7 @@ public class SumExpression : Expression
     }
 
     // Override NodeType to return a custom type for the expression
-    public override Type Type => typeof(double);
-    public override ExpressionType NodeType => ExpressionType.Extension;
+    public override Type Type => typeof(int);
+    public override ExpressionType NodeType => ExpressionType.Add;
     public override bool CanReduce => true;
 }

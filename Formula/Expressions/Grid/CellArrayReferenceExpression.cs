@@ -35,7 +35,7 @@ public class CellArrayReferenceExpression
     public override Expression Reduce()
     {
         var reducedElements = Expressions.Select(e => e.Reduce()).ToArray();
-        return Expression.NewArrayInit(Type.GetElementType() ?? throw new InvalidOperationException(), reducedElements);
+        return Expression.NewArrayInit(typeof(double), reducedElements);
         
         //return Expression.Block(Expressions);
         //return NewArrayInit(typeof(double), Expressions);
