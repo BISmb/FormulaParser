@@ -1,4 +1,7 @@
 using System.Linq.Expressions;
+using Formula.Expressions;
+using Formula.Expressions.Grid;
+using Formula.Expressions.Math;
 using Formula.Factory;
 using Formula.Models;
 
@@ -17,35 +20,35 @@ internal class ExpressionBuilder
         return ParseExpression(tokens, ref index);
     }
     
-    protected virtual Expression ParseExpression(Token[] tokens, ref int index, Grid? grid = null)
+    protected virtual Expression ParseExpression(Token[] tokens, ref int index)
     {
-        Expression left = ParseTerm(tokens, ref index, grid);
+        Expression left = ParseTerm(tokens, ref index);
 
         while (index < tokens.Length && tokens[index].Type == TokenType.Operator) //&& (tokens[index].Value.In("+", "-", "*", "/")
         {
             Token op = tokens[index++];
-            Expression right = ParseTerm(tokens, ref index, grid);
+            Expression right = ParseTerm(tokens, ref index);
             left = ExpressionFactory.NewBinaryExpression(op, left, right);
         }
 
         return left;
     }
 
-    protected virtual Expression ParseTerm(Token[] tokens, ref int index, Grid? grid = null)
+    protected virtual Expression ParseTerm(Token[] tokens, ref int index)
     {
-        Expression left = ParseFactor(tokens, ref index, grid);
+        Expression left = ParseFactor(tokens, ref index);
 
         while (index < tokens.Length && tokens[index].Type == TokenType.Operator)// && (tokens[index].Value == "*" || tokens[index].Value == "/"))
         {
             Token op = tokens[index++];
-            Expression right = ParseFactor(tokens, ref index, grid);
+            Expression right = ParseFactor(tokens, ref index);
             left = ExpressionFactory.NewBinaryExpression(op, left, right);
         }
 
         return left;
     }
 
-    protected virtual Expression ParseFactor(Token[] tokens, ref int index, Grid? grid = null)
+    protected virtual Expression ParseFactor(Token[] tokens, ref int index)
     {
         if (index >= tokens.Length)
         {
@@ -58,8 +61,30 @@ internal class ExpressionBuilder
         if (currentToken.Type == TokenType.GridArray)
         {
             // A4:A6 -> SUM(A4+A5+A6), MIN(A4:A6)
+            
+            CellReferenceArray cellArray = new CellReferenceArray(
+                new GridCellReference(currentToken.Value.Split(":")[0]),
+                new GridCellReference(currentToken.Value.Split(":")[1])
+            );
+            // var gridArrayExpression = new CellReferenceArray(cellArray);
 
-            throw new NotImplementedException("Grid types not implemented");
+            return new CellArrayReferenceExpression(cellArray);
+
+            // ParameterExpression arrayStartParameter =
+            //     Expression.Parameter(typeof(double), "arrayStart");
+            //
+            // ParameterExpression arrayEndParameter =
+            //     Expression.Parameter(typeof(double), "arrayEnd");
+            //
+            //
+            // Dictionary<ParameterExpression, string[]> parameters = new()
+            // {
+            //     [arrayStartParameter] = ["arrayStart"],
+            //     [arrayEndParameter] = ["arrayEnd"]
+            // };
+            //
+            // return new SumExpression([new CellArrayReferenceExpression(cellArray)]);
+
             //return GridArrayExpression.Create(this, grid, currentToken.Value);
 
             // need to "explode" this out
@@ -72,20 +97,73 @@ internal class ExpressionBuilder
 
         if (currentToken.Type == TokenType.Function)
         {
-            string functionName = currentToken.Value;
-            currentToken = tokens[index++];
-
-            // parse arguments
+            // assume sum expression
+            SumExpression expression;
+            
+            // gather parameters
             List<Expression> arguments = new();
-            while (currentToken.Type != TokenType.RightParenthesis)
+            index++; // skip "("
+
+            while (tokens[index].Type != TokenType.RightParenthesis)
             {
-                var argument = ParseFactor(tokens, ref index, grid);
-                arguments.Add(argument);
-                currentToken = tokens[index]; // index incremented in child recursive call
+                var paramExpression = ParseExpression(tokens, ref index);
+                arguments.Add(paramExpression);
             }
+            
+            return new SumExpression(arguments);
+            
+            
+            
+            // int paramIndex = 0;
+            
+            
+            
+            // foreach (Token token in tokens.Skip(index))
+            // {
+            //     if (token.Type == TokenType.LeftParenthesis) continue;
+            //     if (token.Type == TokenType.RightParenthesis) break;
+            //     
+            //     ParameterExpression parameter =
+            //         Expression.Parameter(typeof(double), $"sum{paramIndex++}");
+            //     
+            //     parameterExpressions.Add(parameter);
+            // }
+            
+            // do
+            // {
+            //     if ()
+            //     
+            //     ParameterExpression parameter =
+            //         Expression.Parameter(typeof(double), $"{paramIndex}");
+            //     
+            //     parameterExpressions.Add(parameter);
+            //     paramIndex++;
+            //
+            // } while (tokens[paramIndex].Type != TokenType.RightParenthesis);
+            
+            // CellReferenceArray cellArray = new CellReferenceArray(
+            //     new GridCellReference(tokens[index+1].Value.Split(":")[0]),
+            //     new GridCellReference(tokens[index+1].Value.Split(":")[1])
+            // );
+            // var gridArrayExpression = new CellReferenceArray(cellArray);
+
+            // ParameterExpression arrayStartParameter =
+            //     Expression.Parameter(typeof(double), "arrayStart");
+            //
+            // ParameterExpression arrayEndParameter =
+            //     Expression.Parameter(typeof(double), "arrayEnd");
+
+            
+            // Dictionary<ParameterExpression, string[]> parameters = new()
+            // {
+            //     [arrayStartParameter] = ["arrayStart"],
+            //     [arrayEndParameter] = ["arrayEnd"]
+            // };
+            
+            //return new SumExpression(parameterExpressions);
 
             // get custom expression's (like GridCellReference)
-            throw new NotImplementedException("Custom functions not implemented");
+            // throw new NotImplementedException("Custom functions not implemented");
             // Dictionary<string, Type> functionClrTypes = typeof(IFormulaExpression)
             //     .Assembly
             //     .ExportedTypes
@@ -121,7 +199,7 @@ internal class ExpressionBuilder
 
         if (currentToken.Type == TokenType.LeftParenthesis)
         {
-            Expression expression = ParseExpression(tokens, ref index, grid);
+            Expression expression = ParseExpression(tokens, ref index);
             if (index >= tokens.Length || tokens[index++].Type != TokenType.RightParenthesis)
             {
                 throw new ArgumentException("Mismatched parentheses");
@@ -131,14 +209,14 @@ internal class ExpressionBuilder
 
         if (currentToken.Type == TokenType.GridCoordinate)
         {
-            if (grid is null)
-            {
-                throw new ArgumentException("A grid was not provided but grid coordinates were found in the formula");
-            }
-            
-            throw new NotImplementedException("Grid coordinates not implemented");
+            // if (grid is null)
+            // {
+            //     throw new ArgumentException("A grid was not provided but grid coordinates were found in the formula");
+            // }
+            //
+            // throw new NotImplementedException("Grid coordinates not implemented");
 
-            // return new GridCoordinateNode(grid, currentToken.Value);
+            return new CellReferenceExpression(new GridCellReference(currentToken.Value));
         }
 
         throw new ArgumentException($"Unexpected token: {currentToken.Value}");
