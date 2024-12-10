@@ -6,22 +6,6 @@ using DataLib.Models;
 
 namespace DataLib.Builders;
 
-public interface ISchemaGenerationSettings
-{
-    bool ProduceIdempotentSql { get; }
-}
-
-public struct SchemaGenerationSettings
-    : ISchemaGenerationSettings
-{
-    public bool ProduceIdempotentSql { get; }
-
-    public SchemaGenerationSettings(bool produceIdempotentSql = false)
-    {
-        ProduceIdempotentSql = produceIdempotentSql;
-    }
-}
-
 public class NewTableBuilder(ISchemaGenerationSettings settings) :
     ICreateTableBuilder,
     ICreateTableWithNameBuilder

@@ -1,4 +1,7 @@
 ﻿<Solution>
+  <Project Path="ApiLib.Abstractions\ApiLib.Abstractions.csproj" Type="Classic C#" />
+  <Project Path="ApiLib.Gen\ApiLib.Gen.csproj" Type="Classic C#" />
+  <Project Path="Api\Api.csproj" Type="Classic C#" />
   <Project Path="DataLib.Tests\DataLib.Tests.csproj" Type="Classic C#" />
   <Project Path="DataLib\DataLib.csproj" Type="Classic C#" />
   <Project Path="Formula.Tests\Formula.Tests.csproj" Type="Classic C#" />

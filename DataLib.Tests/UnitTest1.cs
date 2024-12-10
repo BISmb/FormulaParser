@@ -2,6 +2,7 @@ using System.Data;
 using DataLib.Abstraction.Interfaces;
 using DataLib.Builders;
 using DataLib.Expressions;
+using DataLib.Services;
 using DataLib.Visitor;
 using FluentAssertions;
 
@@ -13,7 +14,7 @@ public class UnitTest1
 
     public UnitTest1()
     {
-        IDataSchemaBuilder schemaBuilder = new DataSchemaBuilder(new SchemaGenerationSettings(false));
+        IDataSchemaBuilder schemaBuilder = new DataSchemaBuilder(new DefaultSchemaGenerationSettings(false));
             
         schemaBuilder
             .NewTable("table_a");

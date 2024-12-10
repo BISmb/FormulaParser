@@ -11,3 +11,8 @@ public interface ICreateTableWithNameBuilder : ISqlBuilder
 {
     ICreateTableWithNameBuilder WithPrimaryKeyInformation(string name, DbType dbType);
 }
+
+public interface INewColumnBuilder : ISqlBuilder
+{
+    ICreateTableWithNameBuilder WithName(string name);
+}
