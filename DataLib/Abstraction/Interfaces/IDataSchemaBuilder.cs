@@ -4,6 +4,6 @@ namespace DataLib.Abstraction.Interfaces;
 
 public interface IDataSchemaBuilder : ISqlBuilder
 {
-    ICreateTableBuilder NewTable(string tableName);
+    ICreateTableWithNameBuilder NewTable(string tableName);
     string GetStatement(params ExpressionVisitor[] visitors);
 }

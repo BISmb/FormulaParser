@@ -1,6 +1,13 @@
+using System.Data;
+
 namespace DataLib.Abstraction.Interfaces;
 
 public interface ICreateTableBuilder : ISqlBuilder
 {
-    ICreateTableBuilder WithName(string name);
+    ICreateTableWithNameBuilder WithName(string name);
+}
+
+public interface ICreateTableWithNameBuilder : ISqlBuilder
+{
+    ICreateTableWithNameBuilder WithPrimaryKeyInformation(string name, DbType dbType);
 }

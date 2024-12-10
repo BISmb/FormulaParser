@@ -6,16 +6,31 @@ using DataLib.Visitor;
 
 namespace DataLib.Builders;
 
+public class BuilderFactory(ISchemaGenerationSettings settings)
+{
+    public NewTableBuilder CreateTableBuilder()
+    {
+        return new NewTableBuilder(settings);
+    }
+}
+
 public class DataSchemaBuilder : IDataSchemaBuilder
 {
-    private IList<ISqlBuilder> _builders = new List<ISqlBuilder>();
-    
-    public ICreateTableBuilder NewTable(string tableName)
+    private readonly IList<ISqlBuilder> _builders;
+    private readonly BuilderFactory _builderFactory;
+
+    public DataSchemaBuilder(ISchemaGenerationSettings settings)
     {
-        var tableBuilder = new CreateTableBuilder();
+        _builders = new List<ISqlBuilder>();
+        _builderFactory = new BuilderFactory(settings);
+    }
+    
+    public ICreateTableWithNameBuilder NewTable(string tableName)
+    {
+        var tableBuilder = _builderFactory.CreateTableBuilder();
         tableBuilder.WithName(tableName);
-        _builders.Add(tableBuilder);
         
+        _builders.Add(tableBuilder);
         return tableBuilder;
     }
 

@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Text;
+using DataLib.Models;
 using DataLib.Visitor;
 
 namespace DataLib.Expressions;
@@ -9,11 +10,22 @@ public abstract class DdlExpression : Expression
     public override bool CanReduce => false;
 }
 
-public class CreateTableExpression(string tableName, string? quotedTable = null)
+public class CreateTableExpression
     : Expression
 {
-    public string TableName { get; } = tableName;
-    public string? TableNameQuoted { get; } = quotedTable ?? tableName;
+    public string TableName { get; }
+    public string? TableNameQuoted { get; }
+
+    internal CreateTableExpression(CreateTableOptions options)
+    {
+        TableName = options.TableName;
+    }
+
+    public CreateTableExpression(string tableName, string? quotedTable = null)
+    {
+        TableName = tableName;
+        TableNameQuoted = quotedTable ?? tableName;
+    }
 
     protected override Expression Accept(ExpressionVisitor visitor)
     {

@@ -1,28 +1,47 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
+using System.Data;
 using DataLib.Abstraction.Interfaces;
 using DataLib.Builders;
 using DataLib.Expressions;
 using DataLib.Visitor;
+using FluentAssertions;
 
 namespace DataLib.Tests;
 
 public class UnitTest1
 {
-    [Fact]
-    public void Test1()
+    private string _sql;
+
+    public UnitTest1()
     {
-        IDataSchemaBuilder schemaBuilder = new DataSchemaBuilder();
+        IDataSchemaBuilder schemaBuilder = new DataSchemaBuilder(new SchemaGenerationSettings(false));
             
         schemaBuilder
             .NewTable("table_a");
         
         schemaBuilder
-            .NewTable("table_b");
+            .NewTable("table_b")
+            .WithPrimaryKeyInformation("id", DbType.Guid);
 
         var visitor = new MsSqlQuoter();
         var visitor2 = new MsSqlServerIdempotentTransformer();
-        string sql = schemaBuilder.GetStatement(visitor, visitor2);
+        
+        _sql = schemaBuilder.GetStatement(visitor, visitor2);
+    }
+    
+    [Fact]
+    public void Should_Have_CreateTableA_Expression()
+    {
+        _sql
+            .Should()
+            .ContainEquivalentOf("create table [table_a];");
+    }
+    
+    [Fact]
+    public void Should_Have_CreateTableB_Expression()
+    {
+        _sql
+            .Should()
+            .ContainEquivalentOf("create table [table_b];");
     }
     
     public class PostgresQuoter : HomogonousQuoterVisitor
